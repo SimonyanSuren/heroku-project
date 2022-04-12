@@ -1,0 +1,22 @@
+{
+  "development": {
+    "username": "process.env.DB_USER",
+    "password": "process.env.DB_PASSWORD",
+    "database": "process.env.DB_DATABASE",
+    "host": "process.env.DB_HOST",
+    "dialect": "process.env.DB_DIALECT"
+  },
+  "production": {
+    "username": "ijcmsgovnwxtxs",
+    "password": "608f1fa335cd108757373684df3c747445170a8c4aaf8efada406b2e41faba68",
+    "database": "d743edss4cbuve",
+    "host": "ec2-34-207-12-160.compute-1.amazonaws.com",
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
+  }
+}
