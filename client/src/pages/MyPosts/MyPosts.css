@@ -1,0 +1,9 @@
+.my-posts{
+    background-color: rgb(241, 239, 239);
+    padding-top: 2rem;
+    display: flex;
+    align-items: center;
+    position: relative;
+    flex-direction: column;
+    min-height: 100vh;
+}

@@ -7,9 +7,9 @@
     "dialect": "process.env.DB_DIALECT"
   },
   "production": {
-    "username": "ijcmsgovnwxtxs",
-    "password": "608f1fa335cd108757373684df3c747445170a8c4aaf8efada406b2e41faba68",
-    "database": "d743edss4cbuve",
+    "username": "vfirsbeetrfbsx",
+    "password": "6e4ac8faaed641f2fd288ce693691709c887aa04113aac47116b5c2b168fff3d",
+    "database": "d2m96n85msvt1u",
     "host": "ec2-34-207-12-160.compute-1.amazonaws.com",
     "dialect": "postgres",
     "dialectOptions": {

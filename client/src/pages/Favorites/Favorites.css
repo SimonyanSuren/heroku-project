@@ -1,0 +1,8 @@
+.favorites {
+    display: flex;
+    background-color: rgb(241, 239, 239);
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 7rem;
+}

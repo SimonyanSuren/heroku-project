@@ -1,0 +1,26 @@
+.avatar {
+  border-radius: 50%;
+  background-color: rgb(241, 239, 239);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.avatar-head {
+  width: 50%;
+  height: 50%;
+  border-radius: 100%;
+  background-color: rgb(143, 171, 202);
+  z-index: 9;
+}
+
+.avatar-body {
+  width: 70%;
+  height: 40%;
+  border-radius: 50%;
+  position: absolute;
+  top: 60%;
+  background-color: rgb(172, 195, 219);
+}

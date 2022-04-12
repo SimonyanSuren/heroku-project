@@ -1,0 +1,15 @@
+.acc-view {
+  position: absolute;
+  right: 0.05rem;
+  top: 1rem;
+  margin-top: 2rem;
+  z-index: 99;
+  border-radius: 6px;
+  background-color: inherit;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 15%), 0 6px 9px rgb(0 0 0 / 20%);
+}
+
+.r5 {
+  margin-right: 2.5rem;
+  margin-top: -1rem;
+}

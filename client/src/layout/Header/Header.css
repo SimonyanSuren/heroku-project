@@ -1,0 +1,142 @@
+.main-nav {
+  height: 3.3rem;
+  display: flex;
+  align-items: center;
+  width: 100vw;
+  justify-content: center;
+  background-color: white;
+  position: fixed;
+  z-index: 999;
+  align-items: center;
+  border-bottom: 1px solid rgb(221, 221, 221);
+}
+
+.account-btn {
+  width: 1rem;
+  height: 1rem;
+}
+
+.search-form__input {
+  width: 60%;
+  line-height: 1.75;
+  font-weight: 400;
+  font-size: 14px;
+  width: 18rem;
+  height: 34px;
+  background-color: #eef3f8;
+  border-radius: 3px;
+  padding: 0 8px 0 40px;
+  border: none;
+}
+
+.search-form__input:focus {
+  outline: none;
+}
+
+.logo {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.account-btn {
+  margin-right: 20rem;
+}
+
+.global-nav__icon {
+  fill: inherit;
+  transition: transform 0.5s ease-in-out;
+  fill: #4d4d4d;
+}
+
+.main-nav__primary-items {
+  color: #4d4d4d;
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+  height: 100%;
+}
+
+.main-nav__primary-item a {
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-nav__primary-item {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  width: 60px;
+  margin-right: 3rem;
+}
+
+.main-nav__primary-item--selected {
+  border-bottom: 1px solid black;
+  color: black;
+}
+
+.main-nav__primary-item--selected .global-nav__icon {
+  fill: black;
+}
+
+.main-nav__primary-item span {
+  font-size: 0.8rem;
+}
+
+.logout-btn {
+  padding: 4rem;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  width: 15rem;
+}
+
+.user-account {
+  background-color: white;
+  margin-right: 0;
+}
+
+.account-username {
+  margin-left: 1rem;
+  font-size: 1.1rem;
+}
+
+.main-nav__primary-item:hover .global-nav__icon {
+  fill: black;
+}
+
+.main-nav__primary-item:active .global-nav__icon {
+  transform: scale(0.85);
+}
+
+.main-nav__primary-item:hover span {
+  color: black;
+}
+
+.search-form-secondary {
+  position: relative;
+  margin-right: 30rem;
+}
+
+.search-form-primary {
+  position: relative;
+  margin-right: 15rem;
+}
+
+.search-from__icon {
+  position: absolute;
+  margin-top: 0.5rem;
+  margin-left: 1rem;
+}
+
+.search-form {
+  position: relative;
+}
