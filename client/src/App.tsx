@@ -11,13 +11,15 @@ import useFetch from "./hooks/useFetch";
 import getData from "./services/api/getData.api";
 import currentUserSlice from "./store/currentUser";
 import { useDispatch } from "react-redux";
+import PrivateRoute from "./routes/PrivateRoute";
+import ForgotPass from "./pages/ForgotPass/ForgorPass";
+import NewPass from "./pages/NewPass/NewPass";
 
 export default function App() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const { setUser } = currentUserSlice.actions;
-  const [users] = useFetch("http://localhost:8000/api/v1/user/getAll");
   if (localStorage.getItem("token")) {
-    getData("http://localhost:8000/api/v1/user/get").then((data) => {
+    getData(`${process.env.REACT_APP_ROOT_API}/user/get`).then((data) => {
       dispatch(setUser(data));
     });
   }
@@ -27,13 +29,33 @@ export default function App() {
       <div className="main-container">
         <main className="main">
           <Routes>
-            <Route path="/" element={<Home users={users} />} />
+            <Route path="/" element={<Home/>} />
+            <Route path="/newpass" element={<NewPass/>} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/myposts" element={<MyPosts users={users} />} />
-            <Route path="/author" element={<Author users={users} />} />
-            <Route path="/favorites" element={<Favorites />} />
-            <Route path="/:id" element={<UserAccount />} />
+            <Route path="/login/forgot" element={<ForgotPass />} />
+            <Route
+              path="/myposts"
+              element={
+                <PrivateRoute component={<MyPosts/>} />
+              }
+            />
+            <Route
+              path="/profile/:id"
+              element={<Author />}
+            />
+
+            <Route
+              path="/favorites"
+              element={
+                <PrivateRoute component={<Favorites/>} />
+              }
+            />
+
+            <Route
+              path="/:id"
+              element={<PrivateRoute component={<UserAccount />} />}
+            />
           </Routes>
         </main>
       </div>

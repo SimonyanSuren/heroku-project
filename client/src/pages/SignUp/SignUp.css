@@ -4,6 +4,12 @@
   justify-content: center;
   height: 25rem;
   justify-content: space-between;
+  
+}
+
+.signup {
+  background-color: white;
+  min-height: 100vh;
 }
 
 .card-layout {
@@ -89,6 +95,16 @@ h1 {
 }
 
 .logo-form {
-  margin-top: 2rem;
-  margin-left: 3rem;
+  padding-top: 2rem;
+  padding-left: 3rem;
+}
+
+.email-verify {
+  padding: 5rem;
+  border-radius: 5px;
+  color: gray;
+  font-size: 1.2rem;
+  text-align: center;
+  width: 50%;
+  margin: 0 auto;
 }

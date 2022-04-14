@@ -7,9 +7,10 @@ export default async function getData(url: string) {
         "content-type": "application/json",
       },
     });
-
     const data = await res.json();
-    return data;
+    if (res.status === 200) {
+      return data;
+    } else return [];
   } catch (err) {
     return err;
   }

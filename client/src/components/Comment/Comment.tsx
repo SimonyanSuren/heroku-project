@@ -1,7 +1,6 @@
 import { Card, CardHeader, IconButton, TextField } from "@mui/material";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import updateData from "../../services/api/updateData.api";
-import DropDown from "../shared/DropDown/DropDown";
 import Avatar from "../shared/Avatar/Avatar";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -9,33 +8,30 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useSelector } from "react-redux";
 import { currentUserSel } from "../../store/currentUser";
 import { Link } from "react-router-dom";
+import useOutsideClick from "../../hooks/useOutsideClick";
 
 export default function Comment({
   comment,
-  user,
   deleteComment,
 }: {
   comment: any;
-  user: any;
   deleteComment: Function;
 }) {
-  const [dropDownOpen, setDropDownOpen] = useState(false);
+  const dropdownRef: React.MutableRefObject<null | HTMLDivElement> =
+    useRef(null);
+  const [dropDownOpen, setDropDownOpen] = useOutsideClick(false, dropdownRef);
   const [isEdit, setIsEdit] = useState(false);
   const [commentBody, setCommentBody] = useState(comment.body);
   const [commentDraft, setCommentDraft] = useState(comment.body);
 
-  const currentUser = useSelector(currentUserSel.currentUserSelector);  
+  const currentUser = useSelector(currentUserSel.currentUserSelector);
 
   const toggleDropDown = () => {
     setDropDownOpen(!dropDownOpen);
   };
 
-  const toggleDropDownOutSide = () => {
-    setDropDownOpen(false);
-  };
-
   const editComment = () => {
-    updateData("http://localhost:8000/api/v1/comments/edit", "PATCH", {
+    updateData(`${process.env.REACT_APP_ROOT_API}/comments/edit`, "PATCH", {
       body: commentBody,
       id: comment.id,
     }).then((data: any) => {
@@ -61,20 +57,18 @@ export default function Comment({
       <CardHeader
         sx={{ maxWidth: 500 }}
         avatar={
-          <Link to={`/${user.name}`} state={user}>
+          <Link to={`/${comment.user?.name}`} state={comment.user}>
             <Avatar width="40px" height="40px" />
           </Link>
         }
         action={
           currentUser &&
-          user.id === currentUser.id && (
-            <IconButton aria-label="settings">
-              <MoreVertIcon onClick={toggleDropDown} />
-              <DropDown
-                className="r5"
-                open={dropDownOpen}
-                toggleDropDown={toggleDropDownOutSide}
-              >
+          comment.user?.id === currentUser?.id && (
+            <div ref={dropdownRef}>
+              <IconButton aria-label="settings">
+                <MoreVertIcon onClick={toggleDropDown} />
+              </IconButton>
+              <aside className={`acc-view ` + (dropDownOpen ? "" : "d-none")}>
                 <div className="post-settings">
                   <ul className="post-settings-list">
                     <li className="post-settings-item" onClick={toggleEdit}>
@@ -95,12 +89,12 @@ export default function Comment({
                     </li>
                   </ul>
                 </div>
-              </DropDown>
-            </IconButton>
+              </aside>
+            </div>
           )
         }
-        subheader={!isEdit && commentBody}
-        title={user.id === currentUser?.id? "me": user.name}
+        subheader={<div className="multiline">{!isEdit && commentBody}</div>}
+        title={comment.user?.id === currentUser?.id ? "me" : comment.user?.name}
       />
       {isEdit && (
         <>

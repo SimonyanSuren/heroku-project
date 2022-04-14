@@ -1,0 +1,32 @@
+.user-profile {
+  display: flex;
+  justify-content: center;
+  width: 100vw;
+  padding-top: 8rem;
+}
+
+.user-photo-upload {
+  color: transparent;
+  width: 150px;
+  height: 150px;
+  z-index: 999;
+  cursor: pointer;
+  border-radius: 50%;
+  opacity: 0;
+  position: absolute;
+}
+
+.camera {
+  background-color: transparent;
+  width: 150px;
+  height: 150px;
+  background-color: rgba(142, 142, 142, 0.6);
+  border-radius: 50%;
+  justify-content: center;
+  cursor: pointer;
+  align-items: center;
+  position: absolute;
+  display: flex;
+  z-index: 99;
+}
+

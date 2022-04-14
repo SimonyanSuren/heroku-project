@@ -1,17 +1,16 @@
-const nodemailer = require('nodemailer');
-const nodemailerConfig = require('./nodemailerConfig.helper');
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const sendEmail = async ({ to, subject, html }) => {
-  let testAccount = await nodemailer.createTestAccount();
-
-  const transporter = nodemailer.createTransport(nodemailerConfig);
-
-  return transporter.sendMail({
-    from: "Intership Project", 
-    to,
-    subject,
-    html,
+module.exports.sendEmail = function (html, subject, to, from) {
+  return new Promise((resolve, reject) => {
+    sgMail
+      .send({
+        to,
+        from,
+        subject,
+        html,
+      })
+      .then(resolve)
+      .catch(reject);
   });
 };
-
-module.exports = sendEmail;

@@ -61,6 +61,10 @@ module.exports = {
       passwordTokenExpirationDate: {
         type: DataTypes.DATE,
       },
+      images:{
+        type: DataTypes.STRING,
+        allowNull:true
+      }
     });
   },
   async down(queryInterface, Sequelize) {

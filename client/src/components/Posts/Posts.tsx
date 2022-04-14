@@ -1,116 +1,122 @@
-import { FunctionComponent, useCallback, useEffect, useState } from 'react';
-import Post from '../Post/Post';
-import { Ipost } from '../../APIResponseTypes';
-import React from 'react';
-import transformDataByIds from '../../helpers/dataByIdsTransformer';
-import { useSelector } from 'react-redux';
-import { currentUserSel } from '../../store/currentUser';
-import { Box, Card, CardContent } from '@mui/material';
-import Avatar from '../shared/Avatar/Avatar';
-import updateData from '../../services/api/updateData.api';
-import Loader from '../shared/Loader/Loader';
-import useFetch from '../../hooks/useFetch';
-import NewPost from '../NewPost/NewPost';
+import { FunctionComponent, useCallback, useEffect, useState } from "react";
+import Post from "../Post/Post";
+import { Ipost } from "../../APIResponseTypes";
+import React from "react";
+import transformDataByIds from "../../helpers/dataByIdsTransformer";
+import { useSelector } from "react-redux";
+import { currentUserSel } from "../../store/currentUser";
+import { Card } from "@mui/material";
+import updateData from "../../services/api/updateData.api";
+import Loader from "../shared/Loader/Loader";
+import useFetch from "../../hooks/useFetch";
+import NewPost from "../NewPost/NewPost";
 interface IProps {
   url: string;
-  users: any;
+  searchedPosts: any;
+  newPost: boolean;
 }
 interface FavoriteById {
   id?: Ipost;
 }
-const Posts: FunctionComponent<IProps> = ({ url }) => {
+const Posts: FunctionComponent<IProps> = ({ url, searchedPosts, newPost }) => {
   const user = useSelector(currentUserSel.currentUserSelector);
-  const [users] = useFetch("http://localhost:8000/api/v1/user/getAll");
   const [postsCount, setPostsCount] = useState(0);
   const [posts, status, setStatus, setPosts, end] = useFetch(
-    `${url}limit=${10}&offset=${postsCount}`
+    `${process.env.REACT_APP_ROOT_API}${url}?limit=${10}&offset=${postsCount}`
   );
-  const [alert, setAlert] = useState<string | null>(null);
-  const [favorites, favStatus, setFavorites] = useFetch(
-    'http://localhost:8000/api/v1/posts/getAll'
+
+  const [favorites] = useFetch(
+    `${process.env.REACT_APP_ROOT_API}favoritePosts/getAll`
   );
-  let favoritePostsByIds: FavoriteById | any;
-  if (favorites) {
-    favoritePostsByIds = transformDataByIds(favorites);
+  interface Ifavorites {
+    [key: number]: Ipost;
   }
 
-  const usersByIds = transformDataByIds(users);
+  const [favoritesByIds, setFavoritesByIds] = useState({} as Ifavorites);
+
+  useEffect(() => {
+    const favoritePostsByIds = transformDataByIds(favorites);
+    setFavoritesByIds(favoritePostsByIds);
+  }, [favorites]);
+
+  useEffect(() => {
+    setPosts(searchedPosts);
+  }, [searchedPosts]);
 
   const addPost = (newPost: string) => {
     if (newPost.trim().length) {
-      setStatus('loading');
-      updateData(`${process.env.REACT_APP_ROOT_API}/posts/create`, 'POST', {
+      setStatus("loading");
+      updateData(`${process.env.REACT_APP_ROOT_API}posts/create`, "POST", {
         body: newPost,
-        userId: user.id,
+        user: user,
       }).then((data) => {
-        setTimeout(() => {
-         setPosts([data, ...posts]);
-          setStatus('success');
-        }, 500);
+        setPosts([{ ...data, user: user }, ...posts]);
+        setStatus("success");
       });
     }
   };
 
-  console.log(posts);
-  
-
-  const handleAlert = useCallback((msg: string) => {
-    setAlert(msg);
-  }, []);
-
   const showMore = () => {
-    setStatus('more');
+    setStatus("more");
     setPostsCount(postsCount + 10);
+  };
+
+  const handleFavorite = (obj: { id: number; post: Ipost }) => {
+    if (favoritesByIds[obj.id]) {
+      delete favoritesByIds[obj.id];
+    } else favoritesByIds[obj.id] = obj.post;
+    setFavoritesByIds({ ...favoritesByIds });
   };
 
   const deletePost = useCallback(
     (uuid: string) => () => {
-      setStatus('loading');
+      setStatus("loading");
       updateData(
         `${process.env.REACT_APP_ROOT_API}/posts/delete/${uuid}`,
-        'DELETE',
+        "DELETE",
         {}
       ).then((data: any) => {
         setPosts(posts.filter((post: { uuid: string }) => post.uuid !== uuid));
-        setStatus('success');
+        setStatus("success");
       });
     },
     [posts]
   );
+
+
+  
+
   return (
     <>
-      {user && (
+      {user && newPost && (
         <div className="new-post">
           <Card
             sx={{
               width: 550,
               minHeight: 100,
-              borderRadius: '12px',
+              borderRadius: "12px",
             }}
           >
             <NewPost hanldeNewPost={addPost} type="post" />
           </Card>
         </div>
       )}
-      {status === 'loading' && <Loader />}
+      {status === "loading" && <Loader />}
       {posts?.map((post: Ipost) => (
         <Post
-          key={post.id}
-          users={users}
+          handleFavorite={handleFavorite}
+          key={post.uuid}
           deletePost={deletePost}
-          // handleFavorite={handleFavorite}
-          setAlert={handleAlert}
           post={post}
-          // isfavorite={';
-          //   // user ? (favoritePostsByIds[post.id] ? true : false) : false
-          // }
-          user={usersByIds[post.userId]}
+          isfavorite={!!favoritesByIds[post.id]}
         />
       ))}
       {!posts?.length ? (
         <p className="no-posts">No posts yet!</p>
       ) : (
-        !end && (
+        !end &&
+        !searchedPosts &&
+        posts.length > 9 && (
           <p className="more-posts" onClick={showMore}>
             Show more
           </p>

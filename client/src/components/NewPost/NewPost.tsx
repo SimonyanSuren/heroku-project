@@ -13,7 +13,6 @@ export default function NewPost({ hanldeNewPost, type }: { hanldeNewPost: any, t
       setNewPost("");
     }, 300);
   };
-console.log(newPost);
 
   return (
     <>

@@ -1,7 +1,7 @@
-const { Comment, Post } = require("../models");
-const { Op } = require("sequelize");
-const axios = require("axios");
-const CustomError = require("../errors");
+const { Comment, Post } = require('../models');
+const { Op } = require('sequelize');
+const axios = require('axios');
+const CustomError = require('../errors');
 
 class CommentServices extends Comment {
   constructor() {
@@ -11,7 +11,7 @@ class CommentServices extends Comment {
   async fetch() {
     try {
       let { data } = await axios(
-        "https://jsonplaceholder.typicode.com/comments"
+        'https://jsonplaceholder.typicode.com/comments'
       );
       data = data.map((comment) => {
         return (comment = {
@@ -30,7 +30,8 @@ class CommentServices extends Comment {
   async findAll() {
     try {
       const comments = await Comment.findAll({
-        order: [["createdAt", "DESC"]],
+			include:"user",
+        order: [['createdAt', 'DESC']],
       });
       if (!comments.length) {
         throw new CustomError.NotFoundError(`There is not comment for search.`);
@@ -43,19 +44,11 @@ class CommentServices extends Comment {
 
   async findByQuery(query) {
     const { q: postId, limit, offset } = query;
-    console.log(query);
     try {
-      if (postId) {
-        const comments = await Comment.findAll({
-          where: { postId: postId || "" },
-          order: [["createdAt", "DESC"]],
-          limit,
-          offset,
-        });
-        return comments;
-      }
       const comments = await Comment.findAll({
-        order: [["createdAt", "DESC"]],
+        where: { postId: postId || '' },
+		  include:'user',
+        order: [['createdAt', 'DESC']],
         limit,
         offset,
       });
@@ -74,6 +67,7 @@ class CommentServices extends Comment {
     try {
       const comments = await Comment.findAll({
         where: { postId },
+		  include:'user',
       });
       if (!comments.length) {
         throw new CustomError.NotFoundError(`No comment with that id.`);

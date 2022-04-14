@@ -16,14 +16,16 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false,
       },
-		favorite: {
-			allowNull: false,
-			type: DataTypes.BOOLEAN,
-			default: false 
-		},
       userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        onDelete: 'CASCADE',
+        references: {
+          model: {
+            tableName: 'users',
+          },
+          key: 'id'
+        },
       },
       createdAt: {
         allowNull: false,

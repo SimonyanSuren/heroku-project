@@ -14,9 +14,7 @@ type Status =
 const useFetch = (
   itmesUrl: string
 ): [any, Status, Function, Function, boolean] => {
-  console.log("rendered", 555);
-
-  const [data, setData] = useState([] as Ipost[] | null);
+  const [data, setData] = useState([] as Ipost[] );
   const [status, setStatus] = useState("unloaded" as Status);
   const [end, setEnd] = useState(false);
 
@@ -36,9 +34,11 @@ const useFetch = (
         if (status === "more" || status === "added") {
           data && setData([...data, ...res]);
         } else setData(res);
-      } else throw Error(res.message);
+      } else {
+        setEnd(true);
+      }
     } catch (err) {
-      setEnd(true);
+      return err;
     }
   };
 

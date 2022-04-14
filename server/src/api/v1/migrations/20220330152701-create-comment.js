@@ -18,9 +18,23 @@ module.exports = {
 		userId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
+      onDelete: 'CASCADE',
+        references: {
+          model: {
+            tableName: 'users',
+          },
+          key: 'id'
+        }
 		 },
       postId: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
+        onDelete: 'CASCADE',
+        references: {
+          model: {
+            tableName: 'posts',
+          },
+          key: 'id'
+        }
       },
       createdAt: {
         allowNull: false,

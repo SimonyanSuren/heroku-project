@@ -5,13 +5,18 @@ const {
   authenticateUser,
 } = require('../../middleware/authentication.middleware');
 
+const multerUpload = require('../../middleware/multer.middleware')
+
+router.get('/logout', authenticateUser, AuthController.logout);
+
 router.post('/register', AuthController.register);
 router.post('/login', AuthController.login);
-router.post('/verify-email', AuthController.verifyEmail);
+router.get('/verify-email', AuthController.verifyEmail);
 router.post('/forgot-password', AuthController.forgotPassword);
 router.post('/reset-password', AuthController.resetPassword);
 router.post('/change-password', AuthController.changePassword);
+router.post('/uploadPhoto', authenticateUser, multerUpload, AuthController.uploadFile);
 
-router.delete('/logout', authenticateUser, AuthController.logout);
 
 module.exports = router;
+     

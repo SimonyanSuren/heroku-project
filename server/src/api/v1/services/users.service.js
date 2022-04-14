@@ -21,6 +21,7 @@ class UserServices extends User {
           nickname: item.username,
           email: item.email,
           password: hashPass,
+			 image:null
         });
       });
       const users = await User.bulkCreate(data);

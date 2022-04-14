@@ -1,7 +1,7 @@
-const { Post, User } = require('../models');
-const { Op } = require('sequelize');
-const axios = require('axios');
-const CustomError = require('../errors');
+const { Post, User } = require("../models");
+const { Op } = require("sequelize");
+const axios = require("axios");
+const CustomError = require("../errors");
 
 class PostServices extends Post {
   constructor() {
@@ -10,7 +10,7 @@ class PostServices extends Post {
 
   async fetch() {
     try {
-      let { data } = await axios('https://jsonplaceholder.typicode.com/posts');
+      let { data } = await axios("https://jsonplaceholder.typicode.com/posts");
       data = data.map((post) => {
         return (post = {
           body: post.body,
@@ -24,43 +24,28 @@ class PostServices extends Post {
     }
   }
 
-  async findAll() {
+  async findAll({q:userId, limit, offset }) {
     try {
-      const posts = await Post.findAll({ order: [['createdAt', 'DESC']] });
-      if (!posts.length) {
-        throw new CustomError.NotFoundError(`There is not post for search.`);
-      }
-      return posts;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async findByQuery(query) {
-    const { limit, offset, q: userId, favorite } = query;
-    try {
-      if (!userId && favorite) {
-        const posts = await Post.findAll({
-          where: { favorite: favorite || [true, false] },
-          order: [['createdAt', 'DESC']],
-          limit,
-          offset,
-        });
-        return posts;
-      }
-      if (userId || favorite) {
-        const posts = await Post.findAll({
-          where: { userId: userId || '', favorite: favorite || [true, false] },
-          order: [['createdAt', 'DESC']],
-          limit,
-          offset,
-        });
-        return posts;
-      }
+		 if(userId) {
+			const posts = await Post.findAll({
+				where: {
+					userId:userId
+				},
+				order: [['createdAt', 'DESC']],
+				include: 'user',
+				limit,
+				offset
+			 });
+			 if (!posts.length) {
+				throw new CustomError.NotFoundError(`There is not post for search.`);
+			 }
+			 return posts;
+		 }
       const posts = await Post.findAll({
         order: [['createdAt', 'DESC']],
-        limit,
-        offset,
+        include: 'user',
+		  limit,
+		  offset
       });
       if (!posts.length) {
         throw new CustomError.NotFoundError(`There is not post for search.`);
@@ -71,9 +56,28 @@ class PostServices extends Post {
     }
   }
 
+  async findByQuery(userId, query) {
+    const { limit, offset } = query;
+    try {
+      const posts = await Post.findAll({
+        where: { userId: userId },
+        include: 'user',
+        order: [['createdAt', 'DESC']],
+        limit,
+        offset,
+      });
+      if (!posts.length) {
+        throw new CustomError.NotFoundError(`No posts!`);
+      }
+      return posts;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async findByUuid(uuid) {
     try {
-      const post = await Post.findOne({ where: { uuid }, include: 'comments' });
+      const post = await Post.findOne({ where: { uuid } });
       if (!post) {
         throw new CustomError.NotFoundError(`No post with that id.`);
       }
@@ -129,10 +133,23 @@ class PostServices extends Post {
   }
 
   async search(query) {
-    const { text } = query;
+    const { q: userId, text } = query;
     try {
+      if (userId) {
+        const post = await Post.findAll({
+          where: { userId: userId, body: { [Op.iLike]: `%${text}%` } },
+			 include:"user"
+        });
+        if (!post.length) {
+          throw new CustomError.NotFoundError(
+            `User don't have post with that name.`
+          );
+        }
+        return post;
+      }
       const post = await Post.findAll({
         where: { body: { [Op.iLike]: `%${text}%` } },
+		  include:"user"
       });
       if (!post.length) {
         throw new CustomError.NotFoundError(`No post with that name.`);

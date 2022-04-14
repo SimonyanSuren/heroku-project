@@ -8,7 +8,7 @@ const commentsRouter = require("./api/comments.route");
 const authRouter = require("./api/auth.route");
 const favouritePostsRouter = require("./api/favoritePost.route");
 
-router.use("/user", authenticateUser, usersRouter);
+router.use("/user", usersRouter);
 router.use("/posts", postsRouter);
 router.use("/favoritePosts", authenticateUser, favouritePostsRouter);
 router.use("/comments", commentsRouter);

@@ -5,6 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: rgb(241, 239, 239);
 }
 
 * {
@@ -75,4 +76,13 @@ a {
 .btn-secondary:focus {
   color: #0a66c2;
   background-color: white;
+}
+
+.multiline {
+  white-space: pre-wrap;
+}
+
+.more-comments {
+  margin: 0 auto;
+  cursor: pointer;
 }

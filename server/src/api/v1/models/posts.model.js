@@ -7,17 +7,17 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({User, Comment}) {
+    static associate({ User, Comment, FavouritePost }) {
       // define association here
       //userId
       this.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
-		this.hasMany(Comment, { foreignKey: 'postId', as: 'comments' })
-
+      this.hasMany(FavouritePost, { foreignKey: 'postId', as: 'posts' });
+      this.hasMany(Comment, { foreignKey: 'postId', as: 'comments' });
     }
 
     toJSON() {
-      return { ...this.get()}// id: undefined};
+      return { ...this.get() }; // id: undefined};
     }
   }
   Post.init(
@@ -30,10 +30,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-		favorite: {
-			type: DataTypes.BOOLEAN,
-			defaultValue: false 
-		}
     },
     {
       sequelize,

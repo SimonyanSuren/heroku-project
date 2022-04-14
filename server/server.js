@@ -5,7 +5,6 @@ const app = express();
 
 //packages
 require('express-async-error');
-const cookieParser = require('cookie-parser');
 const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -24,25 +23,29 @@ app.use(
   cors({
     origin: 'http://localhost:3000',
   })
-); 
+);
 
-app.use(bodyParser.urlencoded({
-	extended: true
- }));
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(cookieParser(process.env.JWT_SECRET));
+
+// for build react app
+//app.use(express.static(path.join(__dirname,  'public')));
 app.use('/api/v1', routes);
-app.get('*', (req, res) => {
-   res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// for build react app
+//app.get('*', (req, res) => {
+//  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+//});
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
-
+ 
 const port = process.env.PORT || 3000;
 
-sequelize
+sequelize 
   .authenticate()
   .then(() => {
     console.log('Database Connected!');
@@ -53,4 +56,3 @@ sequelize
   .catch((err) => {
     console.log(err);
   });
- 

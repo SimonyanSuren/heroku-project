@@ -11,7 +11,6 @@ const fetchUsers = async (req, res, next) => {
 };
 
 const getAllUsers = async (req, res, next) => {
-	console.log(req.user);
   UserServices.findAll()
     .then((users) => {
       res.status(StatusCodes.OK).json( users );

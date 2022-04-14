@@ -7,10 +7,9 @@ const {
 } = require("../../middleware/authentication.middleware");
 
 router.get("/getAll", PostsController.getAllPosts);
-router.get("/get/:uuid", PostsController.getEachPost);
+router.get("/get/:uuid", authenticateUser,PostsController.getEachPost);
+router.get("/get",authenticateUser, PostsController.getPostsWithQuery);
 router.get("/search", PostsController.searchPosts);
-router.get("/get", PostsController.getPostsWithQuery);
-//router.get('/favorite/:uuid', PostsController.changeFavByUuid)
 
 router.post("/fetch", PostsController.fetchPosts);
 router.post("/create", authenticateUser, PostsController.createPost);

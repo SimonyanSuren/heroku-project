@@ -1,25 +1,30 @@
-import { useSelector } from "react-redux";
-import { Ipost } from "../../APIResponseTypes";
-import Post from "../../components/Post/Post";
+import { useState } from "react";
+import Posts from "../../components/Posts/Posts";
+import Footer from "../../layout/Footer/Footer";
 import Header from "../../layout/Header/Header";
+import getData from "../../services/api/getData.api";
 import "./Favorites.css";
 
-export default function Favorites({ users }: any) {
-  // const [favorites, status, setFavorites] = useFetch(
-  //   "http://localhost:8000/api/v1/posts/getAll",
-  // ); //must be favorites url
+export default function Favorites() {
+  const [serachedPosts, setSearchedPosts] = useState(null);
+  const handleSearchValue = (value: string) => {
+    getData(
+      `${process.env.REACT_APP_ROOT_API}/favoritePosts/search?text=${value}`
+    ).then((data) => {
+      setSearchedPosts(data);
+    });
+  };
   return (
     <>
-      <Header />
+      <Header handleSearchValue={handleSearchValue} />
       <div className="favorites">
-        {/* {favorites.map((favorite: Ipost) => (
-          <Post
-            post={favorite}
-            isfavorite={true}
-            user={users[favorite.userId]}
-          />
-        ))} */}
+        { <Posts
+          newPost={false}
+          url={"favoritePosts/get"}
+          searchedPosts={serachedPosts}
+        /> }
       </div>
+      <Footer/>
     </>
   );
 }

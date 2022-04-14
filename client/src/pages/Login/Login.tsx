@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { TextField } from "@mui/material";
 import { FormikProps, useFormik } from "formik";
 import "./Login.css";
@@ -20,6 +20,8 @@ export function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { setUser } = currentUserSlice.actions;
+  const [disabled, setDisabled] = useState(false);
+  let params = useParams();
 
   const formik: FormikProps<Values> = useFormik<Values>({
     initialValues: {
@@ -33,6 +35,7 @@ export function Login() {
         .min(8, "Password must contain at least 8 characters"),
     }),
     onSubmit: async (values) => {
+      setDisabled(true);
       const { email, password } = values;
       let body = {
         password,
@@ -46,7 +49,7 @@ export function Login() {
         },
         body: JSON.stringify(body),
       };
-      const url = "http://localhost:8000/api/v1/auth/login";
+      const url = `${process.env.REACT_APP_ROOT_API}auth/login`;
       try {
         const response = await fetch(url, options);
         const data = await response.json();
@@ -57,14 +60,14 @@ export function Login() {
         } else {
           setError(data.msg);
         }
-      } catch (error) {        
+      } catch (error) {
         return error;
       }
     },
   });
 
   return (
-    <>
+    <div className="login">
       <Link to="/">
         <div className="logo-form">{logo()}</div>
       </Link>
@@ -93,11 +96,18 @@ export function Login() {
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
           />
+          <Link to={"./forgot"}>
+            <p className="forgotpass">Forgot passoword?</p>
+          </Link>
           {formik.touched.password && formik.errors.password && (
             <p className="error-message">{formik.errors.password}</p>
           )}
           {error && <p className="error-message">Invalid email or password</p>}
-          <button className="signup-form__btn" type="submit">
+          <button
+            className="signup-form__btn"
+            type="submit"
+            disabled={disabled}
+          >
             Sign in
           </button>
         </form>
@@ -108,6 +118,6 @@ export function Login() {
           <button className="signup-form__btn signin-btn">Sign up</button>
         </Link>
       </div>
-    </>
+    </div>
   );
 }

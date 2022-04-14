@@ -7,7 +7,7 @@ export default function useOutsideClick(
   const [open, setOpen] = useState(initalVal);
 
   const handleClickOutside = (event: { target: EventTarget | null }) => {
-    if (ref.current) {
+    if (ref.current && !ref.current.contains(event.target as Node)) {
       setOpen(false);
     }
   };

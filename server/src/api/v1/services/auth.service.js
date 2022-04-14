@@ -1,5 +1,4 @@
-require('dotenv').config();
-const { User } = require('../models');
+const { User, Photo } = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const CustomError = require('../errors');
@@ -10,9 +9,9 @@ class AuthServices extends User {
     super();
   }
 
-  async register(userData) {
+  async register(userData) { 
     let { name, email, password } = userData;
-
+ 
     try {
       const emailExists = await User.findOne({ where: { email } });
 
@@ -20,20 +19,10 @@ class AuthServices extends User {
         throw new CustomError.BadRequestError('Email already exist.');
       }
 
-      //const regExp = new RegExp(
-      //  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}/g
-      //);
-
-      //if (!regExp.test(password)) {
-      //  throw new CustomError.BadRequestError(
-      //    'Password must contains minimum 8 characters, at least one uppercase letter, one lowercase letter and one number'
-      //  );
-      //}
-
       const verificationToken = bcrypt.genSaltSync(50);
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
-
+		
       const user = await User.create({
         name,
         email,
@@ -41,7 +30,7 @@ class AuthServices extends User {
         verificationToken,
       });
 
-      const origin = 'http://localhost:5000';
+      const origin = `${process.env.HOST}:${process.env.PORT}`;
 
       await sendVerEmail({
         name: user.name,
@@ -77,12 +66,12 @@ class AuthServices extends User {
       //  throw new CustomError.UnauthenticatedError('Please verify your email');
       //}
 
-      const token = jwt.sign({ payload: user }, process.env.JWT_SECRET);
-
+      const token = jwt.sign({ payload: user }, process.env.JWT_SECRET, {
+        expiresIn: '5h',
+      });
 
       return { user, token };
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }
@@ -91,24 +80,24 @@ class AuthServices extends User {
     const { vToken, email } = userData;
     try {
       const user = await User.findOne({ where: { email } });
-
       if (!user) {
-        throw new CustomError.UnauthenticatedError('Verification Failed');
+        throw new CustomError.UnauthorizedError('Verification Failed');
       }
-
       if (user.verificationToken !== vToken) {
-        throw new CustomError.UnauthenticatedError('Verification Failed');
+        throw new CustomError.UnauthorizedError('Verification Failed');
       }
-
+ 
       user.isVerified = true;
       user.verified = Date.now();
-      user.verificationToken = '';
+      user.verificationToken = ''; 
 
       await user.save();
     } catch (error) {
       throw error;
     }
   }
+
+  async logout() {}
 
   async forgotPassword(email) {
     try {
@@ -123,8 +112,8 @@ class AuthServices extends User {
       }
 
       let passwordToken = await bcrypt.genSalt(20);
-      console.log(passwordToken);
-      const origin = 'http://localhost:5000';
+
+      const origin = `${process.env.HOST}:3000`;
       await sendResetPasswordEmail({
         name: user.name,
         email: user.email,
@@ -136,7 +125,6 @@ class AuthServices extends User {
       const passwordTokenExpirationDate = new Date(Date.now() + tenMin);
 
       bcrypt.hash(passwordToken, 10).then(async (res) => {
-        console.log(res);
         user.passwordToken = res;
         user.passwordTokenExpirationDate = passwordTokenExpirationDate;
         await user.save();
@@ -202,7 +190,28 @@ class AuthServices extends User {
     } catch (error) {
       throw error;
     }
-  }
+  };
+
+  async uploadFile (req, res) {
+      const {id} = req.user;
+      const {filename} = req.file
+      try{
+          
+          const user = await User.findOne({where:{id}});
+          if (!user) {
+            throw new CustomError.NotFoundError(`No user with that id.`);
+          }
+          user.images = filename;
+          await user.save();
+
+          const insertPhoto = await Photo.create({userId:id, url:filename});
+          return insertPhoto.url  
+              
+      }catch(error){
+          throw(error)
+      }
+  };
+
 }
 
 module.exports = new AuthServices();

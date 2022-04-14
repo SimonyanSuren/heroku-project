@@ -9,12 +9,10 @@ import CardActions from "@mui/material/CardActions";
 import Collapse from "@mui/material/Collapse";
 import Avatar from "../shared/Avatar/Avatar";
 import IconButton, { IconButtonProps } from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
 import { pink } from "@mui/material/colors";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import EditIcon from "@mui/icons-material/Edit";
 import { Ipost } from "../../APIResponseTypes";
-import DropDown from "../shared/DropDown/DropDown";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import "./Post.css";
@@ -25,18 +23,15 @@ import { useSelector } from "react-redux";
 import { currentUserSel } from "../../store/currentUser";
 import { comment } from "../../assets/icon";
 import Comments from "../Comments/Comments";
+import useOutsideClick from "../../hooks/useOutsideClick";
 
 const Post: FunctionComponent<any> = ({
   post,
   isfavorite,
-  users,
-  user,
-  handleFavorite,
   deletePost,
-  setAlert,
+  handleFavorite,
 }) => {
   const [expanded, setExpanded] = useState(false);
-  const [dropDownOpen, setDropDownOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [postBody, setPostBody] = useState(post.body);
   const [postDraft, setPostDraft] = useState(post.body);
@@ -45,12 +40,9 @@ const Post: FunctionComponent<any> = ({
     expand: boolean;
   }
   const currentUser = useSelector(currentUserSel.currentUserSelector);
-
-  //   useEffect(() => {
-  //     if (favorite === false) {
-
-  //     }
-  //   }, [favorite]);
+  const dropdownRef: React.MutableRefObject<null | HTMLDivElement> =
+    React.useRef(null);
+  const [dropDownOpen, setDropDownOpen] = useOutsideClick(false, dropdownRef);
 
   const ExpandMore = styled((props: ExpandMoreProps) => {
     const { expand, ...other } = props;
@@ -62,10 +54,6 @@ const Post: FunctionComponent<any> = ({
 
   const toggleDropDown = () => {
     setDropDownOpen(!dropDownOpen);
-  };
-
-  const toggleDropDownOutSide = () => {
-    setDropDownOpen(false);
   };
 
   const editPost = () => {
@@ -88,7 +76,14 @@ const Post: FunctionComponent<any> = ({
   };
 
   const toggleFavorite = () => {
-    handleFavorite(post, !isfavorite);
+    const method = isfavorite ? "DELETE" : "POST";
+    let url = isfavorite ? `remove` : "addToFavourites";
+    updateData(
+      `${process.env.REACT_APP_ROOT_API}favoritePosts/${url}`,
+      method,
+      { postId: post.id }
+    );
+    handleFavorite({ id: post.id, post });
   };
 
   const toggleEdit = () => {
@@ -106,46 +101,57 @@ const Post: FunctionComponent<any> = ({
       <Card sx={{ width: 550, zIndex: "1", borderRadius: "12px" }}>
         <CardHeader
           avatar={
-            <Link to="/author" state={user}>
+            <Link
+              to={
+                post.user?.id === currentUser?.id
+                  ? `/${currentUser?.name}`
+                  : `/profile/${post.user?.name}`
+              }
+              state={post.user}
+            >
               <Avatar width="40px" height="40px" />
             </Link>
-          }
+          }b
           action={
             currentUser &&
-            user?.id === currentUser?.id && (
-              <IconButton aria-label="settings" onClick={toggleDropDown}>
-                <MoreVertIcon />
-                <DropDown
-                  open={dropDownOpen}
-                  toggleDropDown={toggleDropDownOutSide}
-                >
-                  <div className="post-settings">
-                    <ul className="post-settings-list">
-                      <li className="post-settings-item" onClick={toggleEdit}>
-                        <IconButton>
-                          {" "}
-                          <EditIcon style={{ fontSize: 20 }} />
-                        </IconButton>
-                        <span>Edit</span>
-                      </li>
-                      <li
-                        className="post-settings-item"
-                        onClick={deletePost(post.uuid)}
-                      >
-                        <IconButton>
-                          {" "}
-                          <DeleteIcon style={{ fontSize: 20 }} />
-                        </IconButton>
-                        <span>Delete</span>
-                      </li>
-                    </ul>
-                  </div>
-                </DropDown>
-              </IconButton>
+            post.user?.id === currentUser?.id && (
+              <div ref={dropdownRef}>
+                <IconButton aria-label="settings" onClick={toggleDropDown}>
+                  <MoreVertIcon />
+                  <aside
+                    className={`acc-view ` + (dropDownOpen ? "" : "d-none")}
+                  >
+                    <div className="post-settings">
+                      <ul className="post-settings-list">
+                        <li className="post-settings-item" onClick={toggleEdit}>
+                          <IconButton>
+                            <EditIcon style={{ fontSize: 20 }} />
+                          </IconButton>
+                          <span>Edit</span>
+                        </li>
+                        <li
+                          className="post-settings-item"
+                          onClick={deletePost(post.uuid)}
+                        >
+                          <IconButton>
+                            {" "}
+                            <DeleteIcon style={{ fontSize: 20 }} />
+                          </IconButton>
+                          <span>Delete</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </aside>
+                </IconButton>
+              </div>
             )
           }
-          title={user?.id === currentUser?.id ? "me" : user?.name}
-          subheader="September 14, 2016"
+          title={post.user?.id === currentUser?.id ? "me" : post.user?.name}
+          subheader={post?.createdAt
+            .toString()
+            .slice(0, 10)
+            .split("-")
+            .join(" ")}
         />
         <CardContent>
           {isEdit ? (
@@ -163,19 +169,19 @@ const Post: FunctionComponent<any> = ({
               </div>
             </>
           ) : (
-            <Typography variant="body2" color="text.secondary">
-              {postBody}
-            </Typography>
+            <div className="multiline">{postBody}</div>
           )}
         </CardContent>
         <CardActions disableSpacing>
-          <IconButton
-            aria-label="add to favorites"
-            onClick={toggleFavorite}
-            sx={{ color: isfavorite ? pink[600] : "default" }}
-          >
-            <FavoriteIcon />
-          </IconButton>
+          {currentUser && (
+            <IconButton
+              aria-label="add to favorites"
+              onClick={toggleFavorite}
+              sx={{ color: isfavorite ? pink[600] : "default" }}
+            >
+              <FavoriteIcon />
+            </IconButton>
+          )}
           <ExpandMore
             expand={expanded}
             onClick={handleExpandClick}
@@ -188,7 +194,7 @@ const Post: FunctionComponent<any> = ({
         </CardActions>
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <CardContent>
-            <Comments id={post.id} users={users} />
+            <Comments id={post.id} />
           </CardContent>
         </Collapse>
       </Card>

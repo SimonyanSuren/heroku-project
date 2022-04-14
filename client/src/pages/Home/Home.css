@@ -85,3 +85,8 @@
 .MuiPaper-root .MuiPaper-elevation .css-46bh2p-MuiCardContent-root:last-child {
   padding-bottom: 0px;
 }
+
+.posts-header {
+  height: 2rem;
+
+}

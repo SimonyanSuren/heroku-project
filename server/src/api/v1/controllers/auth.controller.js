@@ -1,14 +1,13 @@
 const AuthServices = require('../services/auth.service');
 const CustomError = require('../errors');
 const { StatusCodes } = require('http-status-codes');
-const cookieParser = require('cookie-parser');
 
 const register = async (req, res, next) => {
   const { name, email, password } = req.body;
   AuthServices.register({ name, email, password })
     .then(() => {
       res.status(StatusCodes.CREATED).json({
-        msg: 'Success! Please check your email to verify account',
+        msg: "Success! Please check your email to verify account",
       });
     })
     .catch((err) => next(err));
@@ -16,33 +15,18 @@ const register = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   const { email, password } = req.body;
-  console.log("req",req.body);
   AuthServices.login({ email, password })
     .then((result) => {
       const { user, token } = result;
-
-      //res.clearCookie('token');
-      //res.cookie('token', token, {
-      //  maxAge: oneDay,
-      //  httpOnly: true,
-      //  //  expire: Date.now() + oneDay,
-      //  secure: process.env.JWT_SECRET,
-      //  signed: true,
-      //});
-
-      res.status(StatusCodes.OK).json({ user,token });
+      res.status(StatusCodes.OK).json({ user, token });
     })
     .catch((err) => next(err));
 };
 
 const logout = async (req, res, next) => {
   try {
-    res.cookie('token', 'logout', {
-      httpOnly: true,
-      expires: new Date(Date.now()),
-    });
-
-    res.status(StatusCodes.OK).json({ msg: 'User logged out!' });
+    req.user = null;
+    res.redirect("/");
   } catch (error) {
     next(error);
   }
@@ -50,10 +34,11 @@ const logout = async (req, res, next) => {
 
 const verifyEmail = async (req, res, next) => {
   const { vToken, email } = req.query;
-
   AuthServices.verifyEmail({ vToken, email })
     .then(() => {
-      res.status(StatusCodes.OK).json({ msg: 'Email Verified' });
+      res
+        .status(StatusCodes.OK)
+        .redirect('http://localhost:3000/login?verified');
     })
     .catch((err) => next(err));
 };
@@ -63,31 +48,37 @@ const forgotPassword = async (req, res, next) => {
 
   AuthServices.forgotPassword(email)
     .then(() => {
-      res
-        .status(StatusCodes.OK)
-        .json({ msg: 'Please check your email for reset password link' });
+      res.status(StatusCodes.OK).json({ msg: "success" });
     })
     .catch((err) => next(err));
 };
 
 const resetPassword = async (req, res, next) => {
-  const { token, email } = req.query;
-  const { password } = req.body;
+  const { token, email, password } = req.body;
   AuthServices.resetPassword({ token, email, password })
     .then(() => {
-      res.satatus(StatusCodes.OK).send('reset password');
+      res.status(StatusCodes.OK).json({ msg: "success" });
     })
     .catch((err) => next(err));
 };
 
 const changePassword = async (req, res, next) => {
-  const { email, password, newPassword ,token} = req.body;
+  const { email, password, newPassword, token } = req.body;
 
   AuthServices.changePassword({ email, password, newPassword, token })
     .then(() => {
-      res.status(StatusCodes.OK).json({ msg: 'Password changed' });
+      res.status(StatusCodes.OK).json({ msg: "Password changed" });
     })
     .catch((err) => next(err));
+};
+
+const uploadFile = async (req, res, next) => {
+  try {
+    const photoData = await AuthServices.uploadFile(req, res);
+    res.send({ msg: "successfully added", photoData });
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = {
@@ -98,4 +89,5 @@ module.exports = {
   forgotPassword,
   resetPassword,
   changePassword,
+  uploadFile,
 };

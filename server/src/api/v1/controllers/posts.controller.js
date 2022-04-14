@@ -10,7 +10,8 @@ const fetchPosts = async (req, res, next) => {
 };
 
 const getAllPosts = async (req, res, next) => {
-  PostServices.findAll()
+  const{q,limit, offset}  = req.query
+  PostServices.findAll({q,limit, offset})
     .then((posts) => {
       res.status(StatusCodes.OK).json(posts);
     })
@@ -18,7 +19,8 @@ const getAllPosts = async (req, res, next) => {
 };
 
 const getPostsWithQuery = async (req, res, next) => {
-  PostServices.findByQuery(req.query)
+	const userId = req.user.id
+  PostServices.findByQuery(userId, req.query)
     .then((posts) => {
       res.status(StatusCodes.OK).json(posts);
     })
@@ -35,7 +37,8 @@ const getEachPost = async (req, res, next) => {
 };
 
 const createPost = async (req, res, next) => {
-  const { userId, body } = req.body;
+  const { body } = req.body;
+  const userId = req.user.id
   PostServices.create({ userId, body })
     .then((post) => {
       res.status(StatusCodes.CREATED).json(post);
@@ -61,18 +64,10 @@ const editPost = async (req, res, next) => {
     .catch((err) => next(err));
 };
 
-//const changeFavByUuid = async (req, res, next) => {
-//  const { uuid } = req.body;
-//  PostServices.changeFavByUuid(uuid)
-//    .then((post) => {
-//      res.status(StatusCodes.OK).json({ post });
-//    })
-//    .catch((err) => next(err));
-//};
 
 const searchPosts = async (req, res, next) => {
-  const { text } = req.query;
-  PostServices.search({ text })
+  const { q,text } = req.query;
+  PostServices.search({ q,text })
     .then((result) => {
       res.status(StatusCodes.OK).json(result);
     })
